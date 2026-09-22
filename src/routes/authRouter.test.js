@@ -78,7 +78,7 @@ test('delete user franchise', async () => {
 });
 
 test('update user', async () => {
-  const updateUser = await request(app).put('/api/user/' + adminUserID).send({"name":"常用名字", "email":"a@jwt.com", "password":"admin"}).set('Authorization', ' Bearer ' + adminUserAuthToken);
+  const updateUser = await request(app).put('/api/user/' + adminUserID).send({"name":"常用名字", "email": adminUserName + "@admin.com", "password":"toomanysecrets"}).set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(updateUser.status).toBe(200);
 });
 
