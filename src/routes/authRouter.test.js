@@ -61,7 +61,6 @@ test('get all franchises', async () => {
 
 test('create a franchise', async () => {
   const newFranchise = await request(app).post('/api/franchise').set('Authorization', ' Bearer ' + adminUserAuthToken).send({"name": randomName(), "admins": [{"email": adminUserName + "@admin.com"}]});
-  console.log(newFranchise.body);
   expect(newFranchise.status).toBe(200);
 
   franchiseID = newFranchise.body.id;
