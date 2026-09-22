@@ -3,6 +3,7 @@ const app = require('../service');
 const { Role, DB } = require('../database/database.js');
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
+let menuItem = { "title":"Student", "description": "No topping, no sauce, just carbs", "image":"pizza9.png", "price": 0.0001 }
 let adminUser = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
 let testUserAuthToken;
 let adminUserAuthToken;
@@ -25,6 +26,8 @@ beforeAll(async () => {
   adminUserID = adminUser.id;
   adminUserName = adminUser.name;
   expectValidJwt(adminUserAuthToken);
+
+  menuItem = await DB.addMenuItem(menuItem);
 });
 
 test('login', async () => {
@@ -45,7 +48,7 @@ test('get pizza menu', async () => {
 });
 
 test('order pizza', async () => {
-  const pizzaOrder = await request(app).post('/api/order').send({"franchiseId": 1, "storeId":1, "items":[{ "menuId": 1, "description": "Veggie", "price": 0.05 }]}).set('Authorization', ' Bearer ' + testUserAuthToken);
+  const pizzaOrder = await request(app).post('/api/order').send({"franchiseId": 1, "storeId":1, "items":[{ "menuId": menuItem.id, "description": "Veggie", "price": 0.05 }]}).set('Authorization', ' Bearer ' + testUserAuthToken);
   expect(pizzaOrder.status).toBe(200);
 });
 
