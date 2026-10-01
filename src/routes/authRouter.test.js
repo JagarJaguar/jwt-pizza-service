@@ -84,23 +84,25 @@ test('update user', async () => {
   expect(updateUser.status).toBe(200);
 });
 
-test('logout', async () => {
-  const logoutUser = await request(app).delete('/api/auth').set('Authorization', ' Bearer ' + adminUserAuthToken);
-  expect(logoutUser.status).toBe(200);
-});
-
-test('list users unauthenticaed', async () => {
-  const listUsersRes = await request(app).get('/api/user');
-  expect(listUsersRes.status).toBe(401);
-});
-
-test('list users', async () => {
+test('list users with not admin', async () => {
   const [user, userToken] = await registerUser(request(app));
   const listUsersRes = await request(app)
     .get('/api/user')
     .set('Authorization', 'Bearer ' + userToken);
-  expect(listUsersRes.status).toBe(200);
+  expect(listUsersRes.status).toBe(403);
   expect(user.name).toBe('pizza diner');
+});
+
+test('list users with admin role', async () => {
+  const listUsersRes = await request(app)
+    .get('/api/user')
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+  expect(listUsersRes.status).toBe(200);
+});
+
+test('logout', async () => {
+  const logoutUser = await request(app).delete('/api/auth').set('Authorization', ' Bearer ' + adminUserAuthToken);
+  expect(logoutUser.status).toBe(200);
 });
 
 async function registerUser(service) {

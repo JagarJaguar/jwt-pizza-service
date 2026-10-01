@@ -6,7 +6,7 @@ const { authRouter, setAuth } = require('./authRouter.js');
 const userRouter = express.Router();
 
 userRouter.docs = [
-    {
+  {
     method: 'GET',
     path: '/api/user?page=1&limit=10&name=*',
     requiresAuth: true,
@@ -46,6 +46,9 @@ userRouter.get(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    if (!req.user.isRole(Role.Admin)) {
+      return res.status(403).json({ message: 'unauthorized' });
+    }
     res.json({});
   }),
 );
