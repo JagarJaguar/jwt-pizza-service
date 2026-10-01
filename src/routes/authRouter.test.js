@@ -11,7 +11,6 @@ let adminUserID;
 let adminUserName;
 let franchiseID; 
 
-
 beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
   const registerRes = await request(app).post('/api/auth').send(testUser);
@@ -101,6 +100,7 @@ test('list users', async () => {
     .get('/api/user')
     .set('Authorization', 'Bearer ' + userToken);
   expect(listUsersRes.status).toBe(200);
+  expect(user.name).toBe('pizza diner');
 });
 
 async function registerUser(service) {
