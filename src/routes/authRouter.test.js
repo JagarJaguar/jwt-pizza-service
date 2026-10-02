@@ -107,6 +107,18 @@ test('list users with admin role', async () => {
   } 
 });
 
+test('list users for pagination', async () => {
+  for (let i = 0; i < 4; i++) {
+    await registerUser(request(app));
+  }
+
+  const page1 = await request(app)
+    .get('/api/user')
+    .query({ limit: 2 })
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+  expect(page1.body.users.length).toBe(2);
+});
+
 test('logout', async () => {
   const logoutUser = await request(app).delete('/api/auth').set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(logoutUser.status).toBe(200);

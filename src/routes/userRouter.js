@@ -49,7 +49,8 @@ userRouter.get(
     if (!req.user.isRole(Role.Admin)) {
       return res.status(403).json({ message: 'unauthorized' });
     }
-    const users = await DB.getUsers();
+    const limit = Number(req.query.limit) || 10;
+    const users = await DB.getUsers(limit);
     res.json({ users });
   }),
 );
