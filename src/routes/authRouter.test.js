@@ -149,7 +149,7 @@ test('logout', async () => {
   expect(logoutUser.status).toBe(200);
 });
 
-async function registerUser(service, name = 'pizza diner') {
+async function registerUser(service) {
   const testUser = {
     name: 'pizza diner',
     email: `${randomName()}@test.com`,
