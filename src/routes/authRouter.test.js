@@ -159,6 +159,16 @@ test('delete user with no admin', async () => {
   expect(user.name).toBe('pizza diner');
 });
 
+test('delete user (with admin)', async () => {
+  const tag = randomName();
+  const user = await DB.addUser({ name: tag + ' diner', email: tag + '@jwt_test.com', password: 'a', roles: [{ role: Role.Diner }] });
+
+  const deleteRes = await request(app)
+    .delete('/api/user/' + user.id)
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+    console.log(deleteRes.status, deleteRes.body);
+});
+
 test('logout', async () => {
   const logoutUser = await request(app).delete('/api/auth').set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(logoutUser.status).toBe(200);
