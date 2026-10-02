@@ -98,6 +98,13 @@ test('list users with admin role', async () => {
     .get('/api/user')
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
   expect(listUsersRes.status).toBe(200);
+
+  const users = listUsersRes.body.users;
+  expect(Array.isArray(users)).toBe(true);
+  expect(users.length).toBeGreaterThan(0);
+  for (const user of users) {
+    expect(user).toMatchObject( {id: expect.any(Number), name: expect.any(String), email: expect.any(String)} );
+  } 
 });
 
 test('logout', async () => {
