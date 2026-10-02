@@ -150,6 +150,15 @@ test('user name filter', async () => {
   expect(wildcardName.body.users.map((u) => u.id )).toEqual([user.id]);  
 });
 
+test('delete user with no admin', async () => {
+  const [user, userToken] = await registerUser(request(app));
+  const deleteRes = await request(app)
+    .delete('/api/user/' + adminUserID)
+    .set('Authorization', 'Bearer ' + userToken);
+  expect(deleteRes.status).toBe(403);
+  expect(user.name).toBe('pizza diner');
+});
+
 test('logout', async () => {
   const logoutUser = await request(app).delete('/api/auth').set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(logoutUser.status).toBe(200);
