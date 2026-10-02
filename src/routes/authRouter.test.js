@@ -118,6 +118,18 @@ test('list users for pagination', async () => {
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
   expect(page1.body.users.length).toBe(2);
   expect(page1.body.more).toBe(true);
+
+  const firstFour = await request(app)
+    .get('/api/user')
+    .query({ limit: 4 })
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+
+  const page2 = await request(app)
+    .get('/api/user')
+    .query({ page: 2, limit: 2 })
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+
+  
 });
 
 test('logout', async () => {
