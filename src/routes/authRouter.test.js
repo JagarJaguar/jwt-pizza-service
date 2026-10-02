@@ -129,7 +129,8 @@ test('list users for pagination', async () => {
     .query({ page: 2, limit: 2 })
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
 
-  
+  const ids = (res) => res.body.users.map((u) => u.id );
+  expect(ids(page2)).toEqual(ids(firstFour).slice(2));
 });
 
 test('logout', async () => {

@@ -75,10 +75,11 @@ class DB {
     }
   }
 
-  async getUsers(limit) {
+  async getUsers(page, limit) {
     const connection = await this.getConnection();
+    const offset = (page - 1) * limit;
     try {
-      let users = await this.query(connection, `SELECT id, name, email FROM user LIMIT ?`, [String(limit + 1)]);
+      let users = await this.query(connection, `SELECT id, name, email FROM user LIMIT ? OFFSET ?`, [String(limit + 1), String(offset)]);
       const more = users.length > limit;
       if (more) {
         users = users.slice(0, limit);
