@@ -3,13 +3,13 @@ const app = require('../service');
 const { Role, DB } = require('../database/database.js');
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
-let menuItem = { "title":"Student", "description": "No topping, no sauce, just carbs", "image":"pizza9.png", "price": 0.0001 }
+let menuItem = { "title": "Student", "description": "No topping, no sauce, just carbs", "image": "pizza9.png", "price": 0.0001 }
 let adminUser = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
 let testUserAuthToken;
 let adminUserAuthToken;
 let adminUserID;
 let adminUserName;
-let franchiseID; 
+let franchiseID;
 
 beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
@@ -48,12 +48,12 @@ test('get pizza menu', async () => {
 });
 
 test('order pizza', async () => {
-  const pizzaOrder = await request(app).post('/api/order').send({"franchiseId": 1, "storeId":1, "items":[{ "menuId": menuItem.id, "description": "Veggie", "price": 0.05 }]}).set('Authorization', ' Bearer ' + testUserAuthToken);
+  const pizzaOrder = await request(app).post('/api/order').send({ "franchiseId": 1, "storeId": 1, "items": [{ "menuId": menuItem.id, "description": "Veggie", "price": 0.05 }] }).set('Authorization', ' Bearer ' + testUserAuthToken);
   expect(pizzaOrder.status).toBe(200);
 });
 
 test('add menu item', async () => {
-  const newMenuItem = await request(app).put('/api/order/menu').send({ "title":"Student", "description": "No topping, no sauce, just carbs", "image":"pizza9.png", "price": 0.0001 }).set('Authorization', ' Bearer ' + adminUserAuthToken);
+  const newMenuItem = await request(app).put('/api/order/menu').send({ "title": "Student", "description": "No topping, no sauce, just carbs", "image": "pizza9.png", "price": 0.0001 }).set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(newMenuItem.status).toBe(200);
 });
 
@@ -63,7 +63,7 @@ test('get all franchises', async () => {
 });
 
 test('create a franchise', async () => {
-  const newFranchise = await request(app).post('/api/franchise').set('Authorization', ' Bearer ' + adminUserAuthToken).send({"name": randomName(), "admins": [{"email": adminUserName + "@admin.com"}]});
+  const newFranchise = await request(app).post('/api/franchise').set('Authorization', ' Bearer ' + adminUserAuthToken).send({ "name": randomName(), "admins": [{ "email": adminUserName + "@admin.com" }] });
   expect(newFranchise.status).toBe(200);
 
   franchiseID = newFranchise.body.id;
@@ -80,7 +80,7 @@ test('delete user franchise', async () => {
 });
 
 test('update user', async () => {
-  const updateUser = await request(app).put('/api/user/' + adminUserID).send({"name":"常用名字", "email": adminUserName + "@admin.com", "password":"toomanysecrets"}).set('Authorization', ' Bearer ' + adminUserAuthToken);
+  const updateUser = await request(app).put('/api/user/' + adminUserID).send({ "name": "常用名字", "email": adminUserName + "@admin.com", "password": "toomanysecrets" }).set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(updateUser.status).toBe(200);
 });
 
@@ -103,8 +103,8 @@ test('list users with admin role', async () => {
   expect(Array.isArray(users)).toBe(true);
   expect(users.length).toBeGreaterThan(0);
   for (const user of users) {
-    expect(user).toMatchObject( {id: expect.any(Number), name: expect.any(String), email: expect.any(String)} );
-  } 
+    expect(user).toMatchObject({ id: expect.any(Number), name: expect.any(String), email: expect.any(String) });
+  }
 });
 
 test('list users for pagination', async () => {
@@ -129,7 +129,7 @@ test('list users for pagination', async () => {
     .query({ page: 2, limit: 2 })
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
 
-  const ids = (res) => res.body.users.map((u) => u. id );
+  const ids = (res) => res.body.users.map((u) => u.id);
   expect(ids(page2)).toEqual(ids(firstFour).slice(2));
 });
 
@@ -141,13 +141,13 @@ test('user name filter', async () => {
     .get('/api/user')
     .query({ name: tag + ' diner' })
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
-  expect(returnName.body.users.map((u) => u.id )).toEqual([user.id]);   
-  
+  expect(returnName.body.users.map((u) => u.id)).toEqual([user.id]);
+
   const wildcardName = await request(app)
     .get('/api/user')
     .query({ name: tag + '*' })
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
-  expect(wildcardName.body.users.map((u) => u.id )).toEqual([user.id]);  
+  expect(wildcardName.body.users.map((u) => u.id)).toEqual([user.id]);
 });
 
 test('delete user with no admin', async () => {
@@ -166,7 +166,7 @@ test('delete user (with admin)', async () => {
   const deleteRes = await request(app)
     .delete('/api/user/' + user.id)
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
-    console.log(deleteRes.status, deleteRes.body);
+  console.log(deleteRes.status, deleteRes.body);
 });
 
 test('deleted user is logged out', async () => {
@@ -174,7 +174,7 @@ test('deleted user is logged out', async () => {
   await request(app)
     .delete('/api/user/' + user.id)
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
-  
+
   const resMe = await request(app)
     .get('/api/user/me')
     .set('Authorization', 'Bearer ' + userToken);

@@ -89,10 +89,10 @@ class DB {
         users = users.slice(0, limit);
       }
       for (const user of users) {
-          const roleResult = await this.query(connection, `SELECT * from userRole WHERE userId=?`, [user.id]);
-          user.roles = roleResult.map((r) => {
-            return { objectId: r.objectId || undefined, role: r.role };
-          });
+        const roleResult = await this.query(connection, `SELECT * from userRole WHERE userId=?`, [user.id]);
+        user.roles = roleResult.map((r) => {
+          return { objectId: r.objectId || undefined, role: r.role };
+        });
       }
       return [users, more];
     } finally {
