@@ -169,6 +169,19 @@ test('delete user (with admin)', async () => {
     console.log(deleteRes.status, deleteRes.body);
 });
 
+test('deleted user is logged out', async () => {
+  const [user, userToken] = await registerUser(request(app));
+  await request(app)
+    .delete('/api/user/' + user.id)
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+  
+  const resMe = await request(app)
+    .get('/api/user/me')
+    .set('Authorization', 'Bearer ' + userToken);
+
+  expect(resMe.status).toBe(401);
+});
+
 test('logout', async () => {
   const logoutUser = await request(app).delete('/api/auth').set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(logoutUser.status).toBe(200);
