@@ -141,7 +141,13 @@ test('user name filter', async () => {
     .get('/api/user')
     .query({ name: tag + ' diner' })
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
-  expect(returnName.body.users.map((u) => u.id )).toEqual([user.id]);    
+  expect(returnName.body.users.map((u) => u.id )).toEqual([user.id]);   
+  
+  const wildcardName = await request(app)
+    .get('/api/user')
+    .query({ name: tag + '*' })
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+  expect(wildcardName.body.users.map((u) => u.id )).toEqual([user.id]);  
 });
 
 test('logout', async () => {
