@@ -129,8 +129,19 @@ test('list users for pagination', async () => {
     .query({ page: 2, limit: 2 })
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
 
-  const ids = (res) => res.body.users.map((u) => u.id );
+  const ids = (res) => res.body.users.map((u) => u. id );
   expect(ids(page2)).toEqual(ids(firstFour).slice(2));
+});
+
+test('user name filter', async () => {
+  const tag = randomName();
+  const user = await DB.addUser({ name: tag + ' diner', email: tag + '@jwt_test.com', password: 'a', roles: [{ role: Role.Diner }] });
+
+  const returnName = await request(app)
+    .get('/api/user')
+    .query({ name: tag + ' diner' })
+    .set('Authorization', 'Bearer ' + adminUserAuthToken);
+  expect(returnName.body.users.map((u) => u.id )).toEqual([user.id]);    
 });
 
 test('logout', async () => {
@@ -138,7 +149,7 @@ test('logout', async () => {
   expect(logoutUser.status).toBe(200);
 });
 
-async function registerUser(service) {
+async function registerUser(service, name = 'pizza diner') {
   const testUser = {
     name: 'pizza diner',
     email: `${randomName()}@test.com`,
