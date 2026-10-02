@@ -117,6 +117,7 @@ test('list users for pagination', async () => {
     .query({ limit: 2 })
     .set('Authorization', 'Bearer ' + adminUserAuthToken);
   expect(page1.body.users.length).toBe(2);
+  expect(page1.body.more).toBe(true);
 });
 
 test('logout', async () => {

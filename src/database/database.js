@@ -78,14 +78,18 @@ class DB {
   async getUsers(limit) {
     const connection = await this.getConnection();
     try {
-      const users = await this.query(connection, `SELECT id, name, email FROM user LIMIT ?`, [String(limit)]);
+      let users = await this.query(connection, `SELECT id, name, email FROM user LIMIT ?`, [String(limit + 1)]);
+      const more = users.length > limit;
+      if (more) {
+        users = users.slice(0, limit);
+      }
       for (const user of users) {
           const roleResult = await this.query(connection, `SELECT * from userRole WHERE userId=?`, [user.id]);
           user.roles = roleResult.map((r) => {
             return { objectId: r.objectId || undefined, role: r.role };
           });
       }
-      return users;
+      return [users, more];
     } finally {
       connection.end();
     }
