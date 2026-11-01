@@ -69,6 +69,14 @@ test('create a franchise', async () => {
   franchiseID = newFranchise.body.id;
 });
 
+test('create and delete a store', async () => {
+  const newStore = await request(app).post('/api/franchise/' + franchiseID + '/store').set('Authorization', 'Bearer ' + adminUserAuthToken).send({ name: 'SLC' });
+  expect(newStore.status).toBe(200);
+
+  const deleteStore = await request(app).delete('/api/franchise/' + franchiseID + '/store/' + newStore.body.id).set('Authorization', 'Bearer ' + adminUserAuthToken);
+  expect(deleteStore.status).toBe(200);
+});
+
 test('get user franchises', async () => {
   const getUserFranchise = await request(app).get('/api/franchise/' + adminUserID).set('Authorization', ' Bearer ' + adminUserAuthToken);
   expect(getUserFranchise.status).toBe(200);
