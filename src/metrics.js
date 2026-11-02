@@ -4,15 +4,18 @@ const config = require('./config.js');
 let requestLatencyTotalMs = 0;
 let requestLatencyCount = 0;
 const requests = {}
+const authAttempts ={ success: 0, failure: 0}
 
 function requestTracker(req, res, next) {
   const start = Date.now();
   const method = req.method;
+  const path = req.path;
 
   res.on('finish', () => {
     requests[method] = (requests[method] || 0) + 1;
     requestLatencyTotalMs += Date.now() - start;
     requestLatencyCount++;
+    trackAuth(method, path, res.statusCode);
   });
 
   next();
@@ -26,6 +29,21 @@ function httpMetrics() {
     requestLatencyCount = 0;
   }
   return metrics;
+}
+
+function trackAuth(method, path, statusCode) {
+  if (method === 'PUT' && path === '/api/auth') {
+    if (statusCode === 200) {
+      authAttempts.success++;
+    } else {
+      authAttempts.failure++;
+    }
+  }
+}
+
+function authMetrics() {
+  return [createMetric('auth_attempts', authAttempts.success, '1', 'sum', 'asInt', { result: 'success' }),
+    createMetric('auth_attempts', authAttempts.failure, '1', 'sum', 'asInt', { result: 'failure' }),];
 }
 
 function systemMetrics() {
@@ -103,7 +121,7 @@ function sendMetricsPeriodically(period) {
       metrics.add(systemMetrics());
       // metrics.add(userMetrics());
       // metrics.add(purchaseMetrics());
-      // metrics.add(authMetrics());
+      metrics.add(authMetrics());
 
       metrics.sendToGrafana();
     } catch (error) {
