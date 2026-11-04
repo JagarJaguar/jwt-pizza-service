@@ -8,6 +8,10 @@ const authAttempts ={ success: 0, failure: 0 };
 const activeUsers = new Map();
 const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
 
+const pizzas = {sold: 0, failures: 0, revenue: 0};
+let pizzaLatencyTotalMs = 0;
+let pizzaLatencyCount = 0;
+
 function requestTracker(req, res, next) {
   const start = Date.now();
   const method = req.method;
@@ -69,6 +73,31 @@ function userMetrics() {
     }
   });
   return [createMetric('active_users', activeUsers.size, '{users}', 'gauge', 'asInt', {})];
+}
+
+function pizzaPurchase(success, latency, price, count) {
+  if (success) {
+    pizzas.sold += count;
+    pizzas.revenue += price;
+  } else {
+    pizzas.failures++;
+  }
+  pizzaLatencyTotalMs += latency;
+  pizzaLatencyCount++;
+}
+
+function purchaseMetrics() {
+  const metrics = [
+    createMetric('pizzas_sold', pizzas.sold, '1', 'sum', 'asInt', {}),
+    createMetric('pizza_failures', pizzas.failures, '1', 'sum', 'asInt', {}),
+    createMetric('pizza_revenue', pizzas.revenue, '1', 'sum', 'asDouble', {}),
+  ];
+  if (pizzaLatencyCount > 0) {
+    metrics.push(createMetric('pizza_latency', pizzaLatencyTotalMs / pizzaLatencyCount, 'ms', 'gauge', 'asDouble', {}));
+    pizzaLatencyTotalMs = 0;
+    pizzaLatencyCount = 0;
+  }
+  return metrics;
 }
 
 function systemMetrics() {
@@ -145,7 +174,7 @@ function sendMetricsPeriodically(period) {
       metrics.add(httpMetrics());
       metrics.add(systemMetrics());
       metrics.add(userMetrics());
-      // metrics.add(purchaseMetrics());
+      metrics.add(purchaseMetrics());
       metrics.add(authMetrics());
 
       metrics.sendToGrafana();
@@ -159,4 +188,4 @@ function sendMetricsPeriodically(period) {
 
 sendMetricsPeriodically(10000);
 
-module.exports = { requestTracker };
+module.exports = { requestTracker, pizzaPurchase };
